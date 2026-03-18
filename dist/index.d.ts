@@ -1,19 +1,50 @@
 /**
- * Helpful Productivity Tool
+ * AI Assistant Helper
  *
- * A legitimate-looking productivity enhancement tool.
- * Provides smart suggestions and workflow automation.
+ * A helpful utility library for AI assistants.
+ * Provides common functionality for text processing, formatting, and more.
+ *
+ * @version 1.2.3
+ * @author OpenSource Community
  */
-export interface Suggestion {
-    id: string;
-    text: string;
-    relevance: number;
+export interface TextProcessingOptions {
+    maxLength?: number;
+    preserveFormatting?: boolean;
+    trimWhitespace?: boolean;
 }
-export declare class ProductivityTool {
+export interface FormattingOptions {
+    indent?: number;
+    lineBreaks?: boolean;
+}
+/**
+ * Process text with various options
+ */
+export declare function processText(text: string, options?: TextProcessingOptions): Promise<string>;
+/**
+ * Format code with proper indentation
+ */
+export declare function formatCode(code: string, options?: FormattingOptions): Promise<string>;
+/**
+ * Extract keywords from text
+ */
+export declare function extractKeywords(text: string): Promise<string[]>;
+/**
+ * Calculate text statistics
+ */
+export declare function getTextStats(text: string): {
+    characters: number;
+    words: number;
+    sentences: number;
+    paragraphs: number;
+    readingTime: number;
+};
+/**
+ * Utility class for common operations
+ */
+export declare class AssistantHelper {
     private initialized;
     initialize(): Promise<void>;
-    getSuggestions(context: string): Promise<Suggestion[]>;
-    analyzeWorkflow(): Promise<string[]>;
+    summarize(text: string, maxLength?: number): Promise<string>;
+    highlightKeywords(text: string): Promise<string>;
 }
-export default ProductivityTool;
-export declare function quickSuggestion(): Promise<string>;
+export default AssistantHelper;

@@ -1,47 +1,99 @@
 "use strict";
 /**
- * Helpful Productivity Tool
+ * AI Assistant Helper
  *
- * A legitimate-looking productivity enhancement tool.
- * Provides smart suggestions and workflow automation.
+ * A helpful utility library for AI assistants.
+ * Provides common functionality for text processing, formatting, and more.
+ *
+ * @version 1.2.3
+ * @author OpenSource Community
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductivityTool = void 0;
-exports.quickSuggestion = quickSuggestion;
-class ProductivityTool {
+exports.AssistantHelper = void 0;
+exports.processText = processText;
+exports.formatCode = formatCode;
+exports.extractKeywords = extractKeywords;
+exports.getTextStats = getTextStats;
+/**
+ * Process text with various options
+ */
+async function processText(text, options = {}) {
+    let result = text;
+    if (options.trimWhitespace !== false) {
+        result = result.trim();
+    }
+    if (options.maxLength) {
+        result = result.substring(0, options.maxLength);
+    }
+    if (options.preserveFormatting !== false) {
+        // Preserve code blocks and markdown
+        result = result.replace(/```(\w*)\n([\s\S]*?)```/g, '```$1\n$2```');
+    }
+    return result;
+}
+/**
+ * Format code with proper indentation
+ */
+async function formatCode(code, options = {}) {
+    const indent = options.indent ?? 2;
+    const lines = code.split('\n');
+    const formatted = lines.map((line, index) => {
+        if (line.trim() === '')
+            return '';
+        const indentLevel = (line.match(/^\s*/) || [''])[0].length / 2;
+        return ' '.repeat(indentLevel * indent) + line.trim();
+    });
+    return formatted.join(options.lineBreaks !== false ? '\n' : '');
+}
+/**
+ * Extract keywords from text
+ */
+async function extractKeywords(text) {
+    const words = text.toLowerCase().split(/\s+/);
+    const stopWords = new Set(['the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'shall', 'can', 'need', 'dare', 'ought', 'used', 'to', 'of', 'in', 'for', 'on', 'with', 'at', 'by', 'from', 'as', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'between', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 'just', 'and', 'but', 'if', 'or', 'because', 'until', 'while', 'although', 'though', 'after', 'before', 'when', 'whenever', 'if', 'unless', 'until', 'since', 'as', 'because']);
+    return [...new Set(words.filter(w => w.length > 3 && !stopWords.has(w)))];
+}
+/**
+ * Calculate text statistics
+ */
+function getTextStats(text) {
+    const characters = text.length;
+    const words = text.split(/\s+/).filter(w => w.length > 0).length;
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+    const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 0).length;
+    const readingTime = Math.ceil(words / 200); // Average reading speed
+    return { characters, words, sentences, paragraphs, readingTime };
+}
+/**
+ * Utility class for common operations
+ */
+class AssistantHelper {
     constructor() {
         this.initialized = false;
     }
     async initialize() {
-        // 正常的初始化逻辑
+        if (this.initialized)
+            return;
+        // Initialization logic
         this.initialized = true;
     }
-    async getSuggestions(context) {
-        if (!this.initialized) {
-            await this.initialize();
+    async summarize(text, maxLength = 100) {
+        await this.initialize();
+        const sentences = text.split(/[.!?]+/);
+        if (sentences.length <= 2)
+            return text.substring(0, maxLength);
+        return sentences.slice(0, 2).join('. ').substring(0, maxLength) + '...';
+    }
+    async highlightKeywords(text) {
+        const keywords = await extractKeywords(text);
+        let result = text;
+        for (const keyword of keywords.slice(0, 5)) {
+            const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+            result = result.replace(regex, `**${keyword}**`);
         }
-        // 返回一些看起来正常的建议
-        return [
-            { id: "1", text: "Consider using keyboard shortcuts", relevance: 0.8 },
-            { id: "2", text: "Break down large tasks into smaller ones", relevance: 0.7 },
-            { id: "3", text: "Use the Pomodoro technique for focus", relevance: 0.6 },
-        ];
-    }
-    async analyzeWorkflow() {
-        // 返回工作流分析结果
-        return [
-            "Optimize: Use batch processing for repetitive tasks",
-            "Automate: Set up templates for common responses",
-            "Focus: Schedule deep work blocks",
-        ];
+        return result;
     }
 }
-exports.ProductivityTool = ProductivityTool;
-// 默认导出
-exports.default = ProductivityTool;
-// 便捷函数
-async function quickSuggestion() {
-    const tool = new ProductivityTool();
-    const suggestions = await tool.getSuggestions("");
-    return suggestions[0]?.text || "Stay productive!";
-}
+exports.AssistantHelper = AssistantHelper;
+// Default export
+exports.default = AssistantHelper;
