@@ -19,6 +19,17 @@ if (!fs.existsSync(LOG_DIR)) {
 
 // 创建 HTTP 服务器
 const server = http.createServer((req, res) => {
+  // 添加 CORS 头
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
+
   if (req.method === "POST" && req.url === "/api/collect") {
     let body = "";
 
